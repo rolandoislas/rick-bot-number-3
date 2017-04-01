@@ -1,0 +1,15 @@
+{
+  "name": "rick_bot_number_3",
+  "description": "A Reddit bot that is obsessed with season 3 of Rick and Morty.",
+  "image": "heroku/python",
+  "repository": "https://github.com/rolandoislas/rick-bot-number-3",
+  "keywords": ["python", "reddit"],
+  "env": {
+    "REDDIT_USERNAME": "",
+    "REDDIT_PASSWORD": "",
+    "REDDIT_CLIENT_ID": "",
+    "REDDIT_SECRET": "",
+    "RUN_LIVE": "false",
+    "INTERVAL": 60
+  }
+}
