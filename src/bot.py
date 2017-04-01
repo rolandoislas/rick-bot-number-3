@@ -42,6 +42,7 @@ class Bot:
         Entry point for the bot
         :return: boolean - success status
         """
+        Logger.info("Staring bot")
         try:
             self.login()
             self.check_rate_limit(3)
@@ -80,7 +81,13 @@ class Bot:
                                         self.catch_phrases[random.randint(0, len(self.catch_phrases) - 1)],
                                         constants.REPO)
         message = "%s\n\n%s" % (TimeUtil.get_reply(), footer)
-        post.reply(message)
+        self.check_rate_limit()
+        try:
+            post.reply(message)
+        except self.reddit.errors.RateLimitExceeded, e:
+            Logger.debug("Rate limit timeout. Sleeping for %d seconds", e.sleep_time)
+            time.sleep(e.sleep_time)
+            post.reply(message)  # Don't recurse. One retry
 
     def reply_to_new_comments(self, subreddit):
         """
@@ -88,7 +95,34 @@ class Bot:
         :param subreddit: PRAW subreddit
         :return: None
         """
-        pass
+        comments = self.get_new_comments(subreddit)
+        comment_number = 0
+        comments_with_reply = []  # IDs
+        for comment in comments:
+            self.check_rate_limit()
+            if comment.author == self.reddit_username and not comment.is_root:
+                parent = comment.parent()
+                parent.refresh()
+                comments_with_reply.append(parent.id)
+        for comment in comments:
+            if comment.author == self.reddit_username:
+                continue
+            Logger.debug("===== Checking comment %d =====", comment_number)
+            Logger.extra("Comment truncated text: %s", comment.body[:100].replace("\n", ""))
+            comment_number += 1
+            is_season_three_comment = self.contains_valid_phrase(comment.body)
+            Logger.debug("Season 3 comment: %s", is_season_three_comment)
+            if not is_season_three_comment:
+                continue
+            if comment.id in comments_with_reply:
+                Logger.debug("Already replied to this comment")
+                continue
+            Logger.verbose("Comment full text: %s", comment.body)
+            Logger.info("Replying to comment")
+            try:
+                self.reply(comment)
+            except APIException, e:
+                Logger.exception(e)
 
     def get_posts(self, subreddit, interval=None):
         """
@@ -188,5 +222,23 @@ class Bot:
             Logger.info("Commenting on post")
             try:
                 self.reply(post)
-            except APIException:
-                pass
+            except APIException, e:
+                Logger.exception(e)
+
+    def get_new_comments(self, subreddit):
+        """
+        Gets comments from the subreddit from time (NOW - INTERVAL) to (NOW)
+        :param subreddit: PRAW subreddit
+        :return: array of PRAW comments
+        """
+        start_time = int(time.time()) - self.interval * 60
+        subreddit.comment_sort = "new"
+        comments = []
+        Logger.info("Getting comments")
+        for comment in subreddit.comments():
+            if comment.created_utc < start_time:
+                Logger.debug("Found %d comments", len(comments))
+                break
+            comments.append(comment)
+            self.check_rate_limit()
+        return comments
