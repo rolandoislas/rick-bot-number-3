@@ -1,6 +1,5 @@
 import random
 import time
-from __builtin__ import help
 
 from praw import Reddit
 from praw.exceptions import APIException, ClientException
@@ -46,7 +45,7 @@ class Bot:
         try:
             self.login()
             self.check_rate_limit(3)
-            subreddit = self.reddit.subreddit("test")
+            subreddit = self.reddit.subreddit("rickandmorty")
             self.reply_to_new_posts(subreddit)
             self.reply_to_new_comments(subreddit)
         except (APIException, ClientException, ServerError), e:
