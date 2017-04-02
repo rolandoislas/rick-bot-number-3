@@ -104,7 +104,7 @@ class TimeUtil:
         Returns a markdown message with the time until now and the expected release of season 3.
         :return: string
         """
-        return "Season three is about%s away. `Summer (assuming August) 2017`" \
+        return "More season three in about%s. `Summer (assuming August) 2017`" \
                % cls.get_time_string(cls.diff_now_to_season_three)
 
 
