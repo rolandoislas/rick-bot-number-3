@@ -19,7 +19,7 @@ def main():
     if len(sys.argv) >= 3 and sys.argv[1] == "test" and sys.argv[2] == "reply":
         Bot("", "", "", "", "", "").reply(None)
         return
-    # Main
+    # Check environment variables
     Logger.info("%s version %s", constants.NAME, constants.VERSION)
     reddit_username = os.environ.get("REDDIT_USERNAME")
     reddit_password = os.environ.get("REDDIT_PASSWORD")
@@ -27,6 +27,8 @@ def main():
     reddit_secret = os.environ.get("REDDIT_SECRET")
     run_live = os.environ.get("RUN_LIVE")
     interval = os.environ.get("INTERVAL")
+    comments_root_only = os.environ.get("COMMENTS_ROOT_ONLY") or "false"
+    comments_enabled = os.environ.get("COMMENTS_ENABLED") or "true"
     if not reddit_username:
         Logger.throw("Missing REDDIT_USERNAME environment variable.")
     if not reddit_password:
@@ -37,6 +39,13 @@ def main():
         Logger.throw("Missing REDDIT_SECRET environment variable.")
     if not interval:
         Logger.throw("Missing INTERVAL environment variable.")
+    if not constants.SEASON_3_URL:
+        Logger.info("No SEASON_THREE_URL found. Using countdown as message.")
+    if not comments_enabled:
+        Logger.info("Comments disabled.")
+    if comments_root_only and comments_enabled:
+        Logger.info("Only root comments will get replies.")
+    # Parse environment variables
     interval_error = "INTERVAL must be a positive integer."
     try:
         interval = int(interval)
@@ -46,11 +55,15 @@ def main():
         Logger.throw(interval_error)
     if not run_live:
         Logger.warn("Missing RUN_LIVE environment variable. Defaulting to false.")
-    run_live = run_live == "true"
+    run_live = run_live.upper() == "TRUE"
+    comments_enabled = comments_enabled.upper() == "TRUE"
+    comments_root_only = comments_root_only.upper() == "TRUE"
+    # Run
     try:
         tries = 0
         max_tries = 3
-        while not Bot(reddit_password, reddit_username, reddit_client_id, reddit_secret, run_live, interval).run() \
+        while not Bot(reddit_password, reddit_username, reddit_client_id, reddit_secret, run_live, interval,
+                      comments_enabled, comments_root_only).run() \
                 and tries < max_tries:
             Logger.warn("Failed to run bot. Trying again after a delay.")
             tries += 1

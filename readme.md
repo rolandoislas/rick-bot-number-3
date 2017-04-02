@@ -30,6 +30,8 @@ Fortunately, I am not Rick. Submit ideas and bug reports to the [issue tracker].
 
 ### REDDIT_*
 
+strings
+
 - REDDIT_USERNAME
 - REDDIT_PASSWORD
 - REDDIT_CLIENT_ID
@@ -39,10 +41,14 @@ Self explanatory.
 
 ### RUN_LIVE
 
-boolean (lowercase) - Determines if the bot should run in live mode. If it is 
+boolean
+
+Determines if the bot should run in live mode. If it is 
  not live it will error (catch and log) on post. It is useful for testing.
 
 ### INTERVAL
+
+integer
 
 The bot does not run in a loop, it uses a time interval to check for posts and
  comments. This should be set to the amount of time between runs of the script.
@@ -51,12 +57,26 @@ The bot does not run in a loop, it uses a time interval to check for posts and
 
 ### SEASON_THREE_URL
 
+string
+
 optional URL for season 3 release 
 
 This is the URL that will be used for the random season 3 messages.
  It is a string instead of the a boolean because the URL may vary.
  If it is not present or empty, the season three URL message will not display.
  If it is present, the countdown will not display.
+ 
+### COMMENTS_ROOT_ONLY
+
+boolean - default false
+
+This sets the bot to only reply root comments.
+
+### COMMENTS_ENABLED
+
+boolean - default true
+
+This determines if the bot should reply to comments.
 
 
 

@@ -11,6 +11,8 @@
     "REDDIT_SECRET": "",
     "RUN_LIVE": "false",
     "INTERVAL": 60,
-    "SEASON_THREE_URL": ""
+    "SEASON_THREE_URL": "",
+    "COMMENTS_ROOT_ONLY": "",
+    "COMMENTS_ENABLED": ""
   }
 }
