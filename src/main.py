@@ -10,10 +10,16 @@ import constants
 
 
 def main():
+    # Verbose logging
     if "-v" in sys.argv:
         Logger.set_level(Logger.VERBOSE)
     else:
         Logger.set_level(Logger.FINER)
+    # Reply print test
+    if len(sys.argv) >= 3 and sys.argv[1] == "test" and sys.argv[2] == "reply":
+        Bot("", "", "", "", "", "").reply(None)
+        return
+    # Main
     Logger.info("%s version %s", constants.NAME, constants.VERSION)
     reddit_username = os.environ.get("REDDIT_USERNAME")
     reddit_password = os.environ.get("REDDIT_PASSWORD")

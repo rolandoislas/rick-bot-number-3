@@ -10,6 +10,7 @@
     "REDDIT_CLIENT_ID": "",
     "REDDIT_SECRET": "",
     "RUN_LIVE": "false",
-    "INTERVAL": 60
+    "INTERVAL": 60,
+    "SEASON_THREE_URL": ""
   }
 }
