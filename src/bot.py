@@ -76,17 +76,18 @@ class Bot:
         :param post: PRAW submission or comment
         :return: None
         """
+        season_three = "Watch some [season 3](%s), you fucking stupid bitch. Hahaha, just kiddin'." \
+                       % constants.SEASON_3_URL
         footer = "%s v%s | [%s](%s)" % (constants.NAME,
                                         constants.VERSION,
                                         self.catch_phrases[random.randint(0, len(self.catch_phrases) - 1)],
                                         constants.REPO)
-        message = "%s\n\n%s" % (TimeUtil.get_reply(), footer)
+        message = "%s\n\n%s\n\n---\n\n%s" % (season_three, TimeUtil.get_reply(), footer)
         self.check_rate_limit()
         try:
             post.reply(message)
-        except self.reddit.errors.RateLimitExceeded, e:
-            Logger.debug("Rate limit timeout. Sleeping for %d seconds", e.sleep_time)
-            time.sleep(e.sleep_time)
+        except APIException:
+            self.check_rate_limit()
             post.reply(message)  # Don't recurse. One retry
 
     def reply_to_new_comments(self, subreddit):

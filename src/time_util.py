@@ -29,7 +29,7 @@ class TimeUtil:
         season_two_production_time = season_two_premier_date - season_two_production_date
         # Season 3
         season_three_production_date = datetime(2015, 8, 1)  # Some time is August
-        season_three_premier_date = datetime.now()
+        season_three_premier_date = datetime(2017, 1, 1)  # I hope this will not need to edited (April Fools Release?)
         season_three_production_time = season_three_premier_date - season_three_production_date
         # diff
         diff = season_two_production_time - season_three_production_time
@@ -59,9 +59,8 @@ class TimeUtil:
         hours = " %d hour%s," % (cls.hours, cls.get_plural(cls.hours)) if cls.hours > 0 else ""
         minutes = " %d minute%s," % (cls.minutes, cls.get_plural(cls.minutes)) if cls.minutes > 0 else ""
         seconds = " %d second%s" % (cls.seconds, cls.get_plural(cls.seconds))
-        return "Season three production is%s%s%s%s%s%s behind season 2." % (years, months, days,
-                                                                            hours, minutes,
-                                                                            seconds)
+        return "Season three production was about%s%s%s%s%s%s behind season 2." \
+               % (years, months, days, hours, minutes, seconds)
 
     @classmethod
     def get_plural(cls, number):
