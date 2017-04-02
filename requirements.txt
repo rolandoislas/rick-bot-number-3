@@ -3,6 +3,7 @@ packaging==16.8
 praw==4.4.0
 prawcore==0.8.0
 pyparsing==2.2.0
+pytz==2017.2
 requests==2.13.0
 six==1.10.0
 update-checker==0.16
