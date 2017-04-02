@@ -36,6 +36,13 @@ class Bot:
                               "My man.", "Looking good.", "Slow down.", "The answer is...don't think about it.",
                               "Where are my testicles, Summer?", "And awaaaay we go.",
                               "Your opinion means very little to me."]
+        self.season_three_responses = ["Watch some [season 3](%s), you fucking stupid bitch. Hahaha, just kiddin'.",
+                                       "Ooo weee. I wonder what will happen in [season 3](%s).",
+                                       "Have you seen [season 3](%s) yet?",
+                                       "What is better than season 3? [IDK](%s).",
+                                       "If you had to choose between having limbs and watching season 3,"
+                                       " [say goodbye to your limbs](%s).",
+                                       "Find out if Rick escapes prison in [season 3](%s)."]
 
     def run(self):
         """
@@ -76,8 +83,8 @@ class Bot:
         :param post: PRAW submission or comment
         :return: None
         """
-        season_three = "Watch some [season 3](%s), you fucking stupid bitch. Hahaha, just kiddin'." \
-                       % constants.SEASON_3_URL
+        season_three = self.season_three_responses[random.randint(0, len(self.season_three_responses) - 1)]
+        season_three %= constants.SEASON_3_URL
         footer = "%s v%s | [%s](%s)" % (constants.NAME,
                                         constants.VERSION,
                                         self.catch_phrases[random.randint(0, len(self.catch_phrases) - 1)],
