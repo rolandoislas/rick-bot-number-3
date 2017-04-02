@@ -31,7 +31,7 @@ class Bot:
         # Init
         self.reddit = None
         self.phrases = ["SEASON 3", "SEASON THREE", "SEASON3", "THIRD SEASON", "3RD SEASON", "3 RD SEASON",
-                        "SEASON TROIS", "S3"]
+                        "SEASON TROIS", "S3", "S03"]
         self.catch_phrases = ["AIDS!", "Wubba lubba dub dub.", "I'm here if you need to talk.", "\\*snap\\* Yes.",
                               "My man.", "Looking good.", "Slow down.", "The answer is...don't think about it.",
                               "Where are my testicles, Summer?", "And awaaaay we go.",
