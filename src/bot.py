@@ -12,7 +12,7 @@ from time_util import TimeUtil
 
 class Bot:
     def __init__(self, reddit_password, reddit_username, reddit_client_id, reddit_secret, run_live, interval, comments,
-                 comments_root_only, comment_prefix):
+                 comments_root_only, comment_prefix, post_reply_enabled, post_reply_question):
         """
         Initialize the bot
         :param reddit_password: bot password
@@ -23,6 +23,8 @@ class Bot:
         :param interval: Interval the script is expected to be ran at. This determines what posts and comments are "new"
         :param comments: boolean - reply to comments
         :param comments_root_only: boolean - reply only to root comments
+        :param post_reply_enabled: boolean - enable replies to posts
+        :param post_reply_question: boolean - reply only to posts that ask a question
         to the bot.
         """
         self.reddit_password = reddit_password
@@ -34,6 +36,8 @@ class Bot:
         self.comments_enabled = comments
         self.comments_root_only = comments_root_only
         self.comment_prefix = comment_prefix
+        self.post_reply_enabled = post_reply_enabled
+        self.post_reply_question = post_reply_question
         # Init
         self.reddit = None
         self.trigger_phrases = []
@@ -45,6 +49,9 @@ class Bot:
         self.countdown_end_phrases = []
         with open("../resources/countdown_end_phrases.txt") as txt:
             self.countdown_end_phrases = txt.read().splitlines()
+        self.question_phrases = []
+        with open("../resources/question_phrases.txt") as txt:
+            self.question_phrases = txt.read().splitlines()
 
     def run(self):
         """
@@ -56,7 +63,8 @@ class Bot:
             self.login()
             self.check_rate_limit(3)
             subreddit = self.reddit.subreddit("rickandmorty")
-            self.reply_to_new_posts(subreddit)
+            if self.post_reply_enabled:
+                self.reply_to_new_posts(subreddit)
             if self.comments_enabled:
                 self.reply_to_new_comments(subreddit)
         except (APIException, ClientException, ServerError), e:
@@ -239,6 +247,12 @@ class Bot:
             # Check valid title
             is_season_three_post = self.contains_valid_phrase(post.title) or self.contains_valid_phrase(post.selftext)
             Logger.debug("Season 3 post: %s", is_season_three_post)
+            if self.post_reply_question:
+                # Checking the selftext might be to broad
+                is_question = self.is_question(post.title) or self.is_question(post.selftext.replace("?", ""))
+                Logger.debug("Contains question: %s", is_question)
+                if not is_question:
+                    continue
             if not is_season_three_post:
                 continue
             # Check comments
@@ -271,6 +285,18 @@ class Bot:
             self.check_rate_limit()
         return comments
 
+    def is_question(self, text):
+        """
+        Checks if a string contains phrases that might make it a season time question.
+        :param text: 
+        :return: boolean
+        """
+        text_up = text.upper()
+        if any(phrase in text_up for phrase in self.question_phrases):
+            return True
+        return False
+
+
 if __name__ == '__main__':
-    bot = Bot("", "", "", "", "", "", "", "", True)
-    print bot.contains_valid_phrase("Also the bot is here for that lol !season 3", True)
+    bot = Bot("", "", "", "", "", "", "", "", "", "", True)
+    print bot.is_question("Blah blah season 3?")
