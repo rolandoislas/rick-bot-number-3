@@ -13,6 +13,7 @@
     "INTERVAL": 60,
     "SEASON_THREE_URL": "",
     "COMMENTS_ROOT_ONLY": "",
-    "COMMENTS_ENABLED": ""
+    "COMMENTS_ENABLED": "",
+    "COMMENT_PREFIX": ""
   }
 }

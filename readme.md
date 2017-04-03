@@ -78,6 +78,12 @@ boolean - default true
 
 This determines if the bot should reply to comments.
 
+### COMMENT_PREFIX
+
+boolean - default false
+
+Enables only replying to comments with a prefix followed by a matching phrase (e.g. !season 3).
+
 
 
 [/u/rick_bot_number_3]: https://www.reddit.com/user/rick_bot_number_3/
