@@ -11,7 +11,8 @@ from time_util import TimeUtil
 
 
 class Bot:
-    def __init__(self, reddit_password, reddit_username, reddit_client_id, reddit_secret, run_live, interval):
+    def __init__(self, reddit_password, reddit_username, reddit_client_id, reddit_secret, run_live, interval, comments,
+                 comments_root_only, comment_prefix):
         """
         Initialize the bot
         :param reddit_password: bot password
@@ -20,6 +21,8 @@ class Bot:
         :param reddit_secret: Reddit API app secret
         :param run_live: boolean - should run in live mode (send replies)
         :param interval: Interval the script is expected to be ran at. This determines what posts and comments are "new"
+        :param comments: boolean - reply to comments
+        :param comments_root_only: boolean - reply only to root comments
         to the bot.
         """
         self.reddit_password = reddit_password
@@ -28,6 +31,9 @@ class Bot:
         self.reddit_secret = reddit_secret
         self.run_live = run_live
         self.interval = interval
+        self.comments_enabled = comments
+        self.comments_root_only = comments_root_only
+        self.comment_prefix = comment_prefix
         # Init
         self.reddit = None
         self.phrases = ["SEASON 3", "SEASON THREE", "SEASON3", "THIRD SEASON", "3RD SEASON", "3 RD SEASON",
@@ -56,7 +62,8 @@ class Bot:
             self.check_rate_limit(3)
             subreddit = self.reddit.subreddit("rickandmorty")
             self.reply_to_new_posts(subreddit)
-            self.reply_to_new_comments(subreddit)
+            if self.comments_enabled:
+                self.reply_to_new_comments(subreddit)
         except (APIException, ClientException, ServerError), e:
             Logger.exception(e)
             return False
@@ -86,14 +93,18 @@ class Bot:
         """
         season_three = self.season_three_responses[random.randint(0, len(self.season_three_responses) - 1)]
         season_three %= constants.SEASON_3_URL
+        info_message = "I am a bot. I reply to posts and comments related to season 3."
+        if self.comment_prefix:
+            info_message += " Use **%sseason 3** to summon me in the comments." % constants.COMMENT_PREFIX
         footer = "%s v%s | [%s](%s)" % (constants.NAME,
                                         constants.VERSION,
                                         self.catch_phrases[random.randint(0, len(self.catch_phrases) - 1)],
                                         constants.REPO)
-        message = "%s\n\n%s\n\n---\n\n%s" % (season_three if constants.SEASON_3_URL else "",
-                                             TimeUtil.get_season_3_expected_date_reply()
-                                             if not constants.SEASON_3_URL else "",
-                                             footer)
+        message = "%s\n\n%s\n\n---\n\n%s\n\n%s" % (season_three if constants.SEASON_3_URL else "",
+                                                   TimeUtil.get_season_3_expected_date_reply()
+                                                   if not constants.SEASON_3_URL else "",
+                                                   info_message,
+                                                   footer)
         Logger.verbose("Message:\n%s", message)
         self.check_rate_limit()
         try:
@@ -123,12 +134,16 @@ class Bot:
             Logger.debug("===== Checking comment %d =====", comment_number)
             Logger.extra("Comment truncated text: %s", comment.body[:100].replace("\n", ""))
             comment_number += 1
-            is_season_three_comment = self.contains_valid_phrase(comment.body)
+            is_season_three_comment = self.contains_valid_phrase(comment.body, True)
             Logger.debug("Season 3 comment: %s", is_season_three_comment)
+            Logger.debug("Is root: %s", comment.is_root)
             if not is_season_three_comment:
                 continue
             if comment.id in comments_with_reply:
                 Logger.debug("Already replied to this comment")
+                continue
+            if self.comments_root_only and not comment.is_root:
+                Logger.debug("Comment is not root and only root comment replies are enabled.")
                 continue
             Logger.verbose("Comment full text: %s", comment.body)
             Logger.info("Replying to comment")
@@ -170,14 +185,19 @@ class Bot:
         while time.time() < timestamp:
             time.sleep(1)
 
-    def contains_valid_phrase(self, text):
+    def contains_valid_phrase(self, text, is_comment=False):
         """
         Checks if the text has a valid phrase
+        :param is_comment: boolean checks and adds prefix to comments if enabled
         :param text: string
         :return: boolean
         """
         text_up = text.upper()
-        if any(phrase in text_up for phrase in self.phrases):
+        phrases = self.phrases
+        if is_comment and self.comment_prefix:
+            for phrase_num in range(0, len(phrases)):
+                phrases[phrase_num] = constants.COMMENT_PREFIX + phrases[phrase_num]
+        if any(phrase in text_up for phrase in phrases):
             return True
         return False
 
