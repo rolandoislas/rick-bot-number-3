@@ -193,7 +193,7 @@ class Bot:
         :return: boolean
         """
         text_up = text.upper()
-        phrases = self.phrases
+        phrases = list(self.phrases)
         if is_comment and self.comment_prefix:
             for phrase_num in range(0, len(phrases)):
                 phrases[phrase_num] = constants.COMMENT_PREFIX + phrases[phrase_num]
@@ -268,10 +268,14 @@ class Bot:
         subreddit.comment_sort = "new"
         comments = []
         Logger.info("Getting comments")
-        for comment in subreddit.comments():
+        for comment in subreddit.comments(limit=1000000):
             if comment.created_utc < start_time:
                 Logger.debug("Found %d comments", len(comments))
                 break
             comments.append(comment)
             self.check_rate_limit()
         return comments
+
+if __name__ == '__main__':
+    bot = Bot("", "", "", "", "", "", "", "", True)
+    print bot.contains_valid_phrase("Also the bot is here for that lol !season 3", True)
