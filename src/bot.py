@@ -1,3 +1,4 @@
+import os
 import random
 import time
 
@@ -41,16 +42,17 @@ class Bot:
         # Init
         self.reddit = None
         self.trigger_phrases = []
-        with open("../resources/trigger_phrases.txt") as txt:
+        pwd = os.path.dirname(os.path.realpath(__file__))
+        with open(os.path.join(pwd, "../resources/trigger_phrases.txt")) as txt:
             self.trigger_phrases = txt.read().splitlines()
         self.footer_phrases = []
-        with open("../resources/footer_phrases.txt") as txt:
+        with open(os.path.join(pwd, "../resources/footer_phrases.txt")) as txt:
             self.footer_phrases = txt.read().splitlines()
         self.countdown_end_phrases = []
-        with open("../resources/countdown_end_phrases.txt") as txt:
+        with open(os.path.join(pwd, "../resources/countdown_end_phrases.txt")) as txt:
             self.countdown_end_phrases = txt.read().splitlines()
         self.question_phrases = []
-        with open("../resources/question_phrases.txt") as txt:
+        with open(os.path.join(pwd, "../resources/question_phrases.txt")) as txt:
             self.question_phrases = txt.read().splitlines()
 
     def run(self):
