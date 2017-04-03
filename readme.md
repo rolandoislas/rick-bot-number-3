@@ -80,10 +80,22 @@ This determines if the bot should reply to comments.
 
 ### COMMENT_PREFIX
 
-boolean - default false
+boolean - default true
 
 Enables only replying to comments with a prefix followed by a matching phrase (e.g. !season 3).
 
+### POST_REPLY_ENABLED
+
+boolean - default true
+
+This determines if posts should get replies.
+
+### POST_REPLY_QUESTION
+
+boolean - default true
+
+Requires posts to contain additional phrases that make it a question. It is not entirely accurate, but it should reduce
+ the overall posting on general season 3 posts.
 
 
 [/u/rick_bot_number_3]: https://www.reddit.com/user/rick_bot_number_3/

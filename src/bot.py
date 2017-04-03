@@ -12,7 +12,7 @@ from time_util import TimeUtil
 
 class Bot:
     def __init__(self, reddit_password, reddit_username, reddit_client_id, reddit_secret, run_live, interval, comments,
-                 comments_root_only, comment_prefix):
+                 comments_root_only, comment_prefix, post_reply_enabled, post_reply_question):
         """
         Initialize the bot
         :param reddit_password: bot password
@@ -23,6 +23,8 @@ class Bot:
         :param interval: Interval the script is expected to be ran at. This determines what posts and comments are "new"
         :param comments: boolean - reply to comments
         :param comments_root_only: boolean - reply only to root comments
+        :param post_reply_enabled: boolean - enable replies to posts
+        :param post_reply_question: boolean - reply only to posts that ask a question
         to the bot.
         """
         self.reddit_password = reddit_password
@@ -34,22 +36,22 @@ class Bot:
         self.comments_enabled = comments
         self.comments_root_only = comments_root_only
         self.comment_prefix = comment_prefix
+        self.post_reply_enabled = post_reply_enabled
+        self.post_reply_question = post_reply_question
         # Init
         self.reddit = None
-        self.phrases = ["SEASON 3", "SEASON THREE", "SEASON3", "THIRD SEASON", "3RD SEASON", "3 RD SEASON",
-                        "SEASON TROIS", "S3", "S03"]
-        self.catch_phrases = ["AIDS!", "Wubba lubba dub dub.", "I'm here if you need to talk.", "\\*snap\\* Yes.",
-                              "My man.", "Looking good.", "Slow down.", "The answer is...don't think about it.",
-                              "Where are my testicles, Summer?", "And awaaaay we go.",
-                              "Your opinion means very little to me.",
-                              "I turned myself into a pickle, Morty."]
-        self.season_three_responses = ["Ooo weee. I wonder what will happen in [season 3](%s).",
-                                       "Have you seen [season 3](%s) yet?",
-                                       "What is better than season 3? [IDK](%s).",
-                                       "If you had to choose between having limbs and watching season 3,"
-                                       " [say goodbye to your limbs](%s).",
-                                       "I'm Mr. Rick Bot! Look at me! \\([Season 3](%s)\\)",
-                                       "I love linkin'...to [season 3](%s)."]
+        self.trigger_phrases = []
+        with open("../resources/trigger_phrases.txt") as txt:
+            self.trigger_phrases = txt.read().splitlines()
+        self.footer_phrases = []
+        with open("../resources/footer_phrases.txt") as txt:
+            self.footer_phrases = txt.read().splitlines()
+        self.countdown_end_phrases = []
+        with open("../resources/countdown_end_phrases.txt") as txt:
+            self.countdown_end_phrases = txt.read().splitlines()
+        self.question_phrases = []
+        with open("../resources/question_phrases.txt") as txt:
+            self.question_phrases = txt.read().splitlines()
 
     def run(self):
         """
@@ -61,7 +63,8 @@ class Bot:
             self.login()
             self.check_rate_limit(3)
             subreddit = self.reddit.subreddit("rickandmorty")
-            self.reply_to_new_posts(subreddit)
+            if self.post_reply_enabled:
+                self.reply_to_new_posts(subreddit)
             if self.comments_enabled:
                 self.reply_to_new_comments(subreddit)
         except (APIException, ClientException, ServerError), e:
@@ -91,14 +94,14 @@ class Bot:
         :param post: PRAW submission or comment
         :return: None
         """
-        season_three = self.season_three_responses[random.randint(0, len(self.season_three_responses) - 1)]
+        season_three = self.countdown_end_phrases[random.randint(0, len(self.countdown_end_phrases) - 1)]
         season_three %= constants.SEASON_3_URL
         info_message = "I am a bot. I reply to posts and comments related to season 3."
         if self.comment_prefix:
             info_message += " Use **%sseason 3** to summon me in the comments." % constants.COMMENT_PREFIX
         footer = "%s v%s | [%s](%s)" % (constants.NAME,
                                         constants.VERSION,
-                                        self.catch_phrases[random.randint(0, len(self.catch_phrases) - 1)],
+                                        self.footer_phrases[random.randint(0, len(self.footer_phrases) - 1)],
                                         constants.REPO)
         message = "%s\n\n%s\n\n---\n\n%s\n\n%s" % (season_three if constants.SEASON_3_URL else "",
                                                    TimeUtil.get_season_3_expected_date_reply()
@@ -193,7 +196,7 @@ class Bot:
         :return: boolean
         """
         text_up = text.upper()
-        phrases = list(self.phrases)
+        phrases = list(self.trigger_phrases)
         if is_comment and self.comment_prefix:
             for phrase_num in range(0, len(phrases)):
                 phrases[phrase_num] = constants.COMMENT_PREFIX + phrases[phrase_num]
@@ -244,6 +247,12 @@ class Bot:
             # Check valid title
             is_season_three_post = self.contains_valid_phrase(post.title) or self.contains_valid_phrase(post.selftext)
             Logger.debug("Season 3 post: %s", is_season_three_post)
+            if self.post_reply_question:
+                # Checking the selftext might be to broad
+                is_question = self.is_question(post.title) or self.is_question(post.selftext.replace("?", ""))
+                Logger.debug("Contains question: %s", is_question)
+                if not is_question:
+                    continue
             if not is_season_three_post:
                 continue
             # Check comments
@@ -276,6 +285,18 @@ class Bot:
             self.check_rate_limit()
         return comments
 
+    def is_question(self, text):
+        """
+        Checks if a string contains phrases that might make it a season time question.
+        :param text: 
+        :return: boolean
+        """
+        text_up = text.upper()
+        if any(phrase in text_up for phrase in self.question_phrases):
+            return True
+        return False
+
+
 if __name__ == '__main__':
-    bot = Bot("", "", "", "", "", "", "", "", True)
-    print bot.contains_valid_phrase("Also the bot is here for that lol !season 3", True)
+    bot = Bot("", "", "", "", "", "", "", "", "", "", True)
+    print bot.is_question("Blah blah season 3?")
