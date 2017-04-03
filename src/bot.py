@@ -36,20 +36,15 @@ class Bot:
         self.comment_prefix = comment_prefix
         # Init
         self.reddit = None
-        self.phrases = ["SEASON 3", "SEASON THREE", "SEASON3", "THIRD SEASON", "3RD SEASON", "3 RD SEASON",
-                        "SEASON TROIS", "S3", "S03"]
-        self.catch_phrases = ["AIDS!", "Wubba lubba dub dub.", "I'm here if you need to talk.", "\\*snap\\* Yes.",
-                              "My man.", "Looking good.", "Slow down.", "The answer is...don't think about it.",
-                              "Where are my testicles, Summer?", "And awaaaay we go.",
-                              "Your opinion means very little to me.",
-                              "I turned myself into a pickle, Morty."]
-        self.season_three_responses = ["Ooo weee. I wonder what will happen in [season 3](%s).",
-                                       "Have you seen [season 3](%s) yet?",
-                                       "What is better than season 3? [IDK](%s).",
-                                       "If you had to choose between having limbs and watching season 3,"
-                                       " [say goodbye to your limbs](%s).",
-                                       "I'm Mr. Rick Bot! Look at me! \\([Season 3](%s)\\)",
-                                       "I love linkin'...to [season 3](%s)."]
+        self.trigger_phrases = []
+        with open("../resources/trigger_phrases.txt") as txt:
+            self.trigger_phrases = txt.read().splitlines()
+        self.footer_phrases = []
+        with open("../resources/footer_phrases.txt") as txt:
+            self.footer_phrases = txt.read().splitlines()
+        self.countdown_end_phrases = []
+        with open("../resources/countdown_end_phrases.txt") as txt:
+            self.countdown_end_phrases = txt.read().splitlines()
 
     def run(self):
         """
@@ -91,14 +86,14 @@ class Bot:
         :param post: PRAW submission or comment
         :return: None
         """
-        season_three = self.season_three_responses[random.randint(0, len(self.season_three_responses) - 1)]
+        season_three = self.countdown_end_phrases[random.randint(0, len(self.countdown_end_phrases) - 1)]
         season_three %= constants.SEASON_3_URL
         info_message = "I am a bot. I reply to posts and comments related to season 3."
         if self.comment_prefix:
             info_message += " Use **%sseason 3** to summon me in the comments." % constants.COMMENT_PREFIX
         footer = "%s v%s | [%s](%s)" % (constants.NAME,
                                         constants.VERSION,
-                                        self.catch_phrases[random.randint(0, len(self.catch_phrases) - 1)],
+                                        self.footer_phrases[random.randint(0, len(self.footer_phrases) - 1)],
                                         constants.REPO)
         message = "%s\n\n%s\n\n---\n\n%s\n\n%s" % (season_three if constants.SEASON_3_URL else "",
                                                    TimeUtil.get_season_3_expected_date_reply()
@@ -193,7 +188,7 @@ class Bot:
         :return: boolean
         """
         text_up = text.upper()
-        phrases = list(self.phrases)
+        phrases = list(self.trigger_phrases)
         if is_comment and self.comment_prefix:
             for phrase_num in range(0, len(phrases)):
                 phrases[phrase_num] = constants.COMMENT_PREFIX + phrases[phrase_num]
