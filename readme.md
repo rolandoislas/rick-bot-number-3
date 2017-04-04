@@ -2,12 +2,12 @@
 
 Where is Rick and Morty season 3?
 
-[/u/rick_bot_number_3] does not know but it does like pointing out the production
- time differences between season 2 and 3 on [/r/RickAndMorty].
+[/u/rick_bot_number_3] does not know but it does like counting down the time until season 3 on [/r/RickAndMorty].
+ The date will be updated if an official one is given before the release.
 
-For info how the bot determines the time difference see the post [Season Three is not Late].
+The initial intention of the bot was to point out the time difference between the off-season 1-2 and 2-3.
 
-Like the bot? Toss me a Schmeckle (or part of one): `1C55DzMDvTMHQ2o3HUQtHex5EoPKi1Et17`.
+Like the bot? Toss me a Schmeckle: `1C55DzMDvTMHQ2o3HUQtHex5EoPKi1Et17`.
 
 # Suggestions
 
@@ -100,5 +100,4 @@ Requires posts to contain additional phrases that make it a question. It is not 
 
 [/u/rick_bot_number_3]: https://www.reddit.com/user/rick_bot_number_3/
 [/r/RickAndMorty]: https://www.reddit.com/r/rickandmorty/
-[Season Three is not Late]: https://www.reddit.com/r/rickandmorty/comments/62clpj/season_three_is_not_late/
 [issue tracker]: https://github.com/rolandoislas/rick-bot-number-3
