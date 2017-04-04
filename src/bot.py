@@ -247,11 +247,12 @@ class Bot:
             post_num += 1
             Logger.extra("Post Title: %s", post.title)
             # Check valid title
-            is_season_three_post = self.contains_valid_phrase(post.title) or self.contains_valid_phrase(post.selftext)
+            self_text_is_season_3 = self.contains_valid_phrase(post.selftext, True)  # Parse self-text as a comment
+            is_season_three_post = self.contains_valid_phrase(post.title) or self_text_is_season_3
             Logger.debug("Season 3 post: %s", is_season_three_post)
             if self.post_reply_question:
                 # Checking the selftext might be to broad
-                is_question = self.is_question(post.title) or self.is_question(post.selftext.replace("?", ""))
+                is_question = self.is_question(post.title) or self_text_is_season_3
                 Logger.debug("Contains question: %s", is_question)
                 if not is_question:
                     continue
@@ -294,7 +295,7 @@ class Bot:
         :return: boolean
         """
         text_up = text.upper()
-        if any(phrase in text_up for phrase in self.question_phrases):
+        if any(text_up.startswith(phrase) for phrase in self.question_phrases):
             return True
         return False
 
