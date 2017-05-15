@@ -2,6 +2,7 @@ import os
 import random
 import time
 
+import datetime
 from praw import Reddit
 from praw.exceptions import APIException, ClientException
 from prawcore import ServerError
@@ -246,16 +247,19 @@ class Bot:
             Logger.debug("===== Checking post %d =====", post_num)
             post_num += 1
             Logger.extra("Post Title: %s", post.title)
+            Logger.debug("Link: %s", post.shortlink)
+            Logger.debug("Created: %s", datetime.datetime.fromtimestamp(post.created))
             # Check valid title
             self_text_is_season_3 = self.contains_valid_phrase(post.selftext, True)  # Parse self-text as a comment
             is_season_three_post = self.contains_valid_phrase(post.title) or self_text_is_season_3
             Logger.debug("Season 3 post: %s", is_season_three_post)
             if self.post_reply_question:
                 # Checking the selftext might be to broad
-                is_question = self.is_question(post.title) or self_text_is_season_3
+                is_question = self.is_question(post.title)
                 Logger.debug("Contains question: %s", is_question)
-                if not is_question:
+                if not (is_question or self_text_is_season_3):
                     continue
+            # Ignore if not season 3 post
             if not is_season_three_post:
                 continue
             # Check comments
