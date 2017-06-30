@@ -106,6 +106,8 @@ class Bot:
                                         constants.VERSION,
                                         self.footer_phrases[random.randint(0, len(self.footer_phrases) - 1)],
                                         constants.REPO)
+        # TODO Don't handle the season three release message with environment variable logic.
+        # Have the message update based on the time.
         message = "%s\n\n%s\n\n---\n\n%s\n\n%s" % (season_three if constants.SEASON_3_URL else "",
                                                    TimeUtil.get_season_3_expected_date_reply()
                                                    if not constants.SEASON_3_URL else "",
@@ -228,7 +230,7 @@ class Bot:
         has_commented = False
         for comment in comments:
             Logger.extra("Comment is root: %s", comment.is_root)
-            if comment.is_root and comment.author.name == self.reddit_username:
+            if comment.is_root and ((not comment.author) or comment.author.name == self.reddit_username):
                 has_commented = True
                 break
         return has_commented

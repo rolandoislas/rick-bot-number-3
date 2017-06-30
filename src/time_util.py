@@ -30,8 +30,8 @@ class TimeUtil:
         # Season 3
         season_three_production_date = datetime(2015, 8, 1, tzinfo=central)  # Some time is August
         season_three_premier_date_fool = datetime(2017, 4, 1, 17, 1, tzinfo=central)  # Exact *date* 5:01pm (tweet)
-        # TODO update if actual date is released
-        season_three_premier_date = datetime(2017, 8, 1, 21, 30, tzinfo=central)  # Summer 2017 assuming 9:30pm
+
+        season_three_premier_date = datetime(2017, 7, 30, 22, 30, tzinfo=central)  # July 30, 2017 10:30pm
         season_three_production_time = season_three_premier_date_fool - season_three_production_date
         # diff
         TimeUtil.diff_season_two_to_three = self.get_diff(season_two_production_time, season_three_production_time)
@@ -104,7 +104,7 @@ class TimeUtil:
         Returns a markdown message with the time until now and the expected release of season 3.
         :return: string
         """
-        return "More season three in about%s. `Summer (assuming August) 2017`" \
+        return "More season three in%s. `July 30, 2017 11:30 EST`" \
                % cls.get_time_string(cls.diff_now_to_season_three)
 
 
